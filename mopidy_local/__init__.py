@@ -46,11 +46,12 @@ class Extension(ext.Extension):
         return LocalCommand()
 
     def webapp(self, config, core):
-        from .web import ImageHandler, IndexHandler
+        from .web import AlbumHandler, ImageHandler, IndexHandler
 
         image_dir = self.get_image_dir(config)
         return [
             (r"/(index.html)?", IndexHandler, {"root": image_dir}),
+            (r"/albums", AlbumHandler, {"config": config, "core": core}),
             (r"/(.+)", ImageHandler, {"path": image_dir}),
         ]
 

@@ -17,6 +17,7 @@ class LocalCommand(commands.Command):
         super().__init__()
         self.add_child("scan", ScanCommand())
         self.add_child("clear", ClearCommand())
+        self.add_child("add", AddCommand())
 
 
 class ClearCommand(commands.Command):
@@ -62,6 +63,9 @@ class ScanCommand(commands.Command):
 
     def run(self, args, config):
         media_dir = pathlib.Path(config["local"]["media_dir"]).resolve()
+        self._add_files(args, config, media_dir)
+
+    def _add_files(self, args, config, media_dir):
         library = storage.LocalStorageProvider(config)
 
         file_mtimes = self._find_files(
@@ -252,6 +256,23 @@ class ScanCommand(commands.Command):
         progress.log()
         logger.info("Done scanning")
 
+
+class AddCommand(ScanCommand):
+    help = "Add new content to local library."
+
+    def __init__(self):
+        super().__init__()
+        self.add_argument(
+            "path",
+            action="store",
+            type=str,
+            default=None,
+            help="Path to new media to be added",
+        )
+
+    def run(self, args, config):
+        path = pathlib.Path(args.path).resolve()
+        self._add_files(args, config, path)
 
 class _ScanProgress:
     def __init__(self, *, batch_size, total):

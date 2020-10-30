@@ -29,6 +29,7 @@ class LocalLibraryProvider(backend.LibraryProvider):
     ROOT_DIRECTORY_URI = "local:directory"
 
     root_directory = models.Ref.directory(uri=ROOT_DIRECTORY_URI, name="Local media")
+    supports_pagination = True
 
     def __init__(self, backend, config):
         super().__init__(backend)
@@ -78,8 +79,9 @@ class LocalLibraryProvider(backend.LibraryProvider):
             logger.error("Error browsing %s: %s", uri, e)
             return []
 
-    def search(self, query=None, limit=100, offset=0, uris=None, exact=False):
+    def search(self, query=None, limit=None, offset=0, uris=None, exact=False):
         q = []
+        logger.info('here is the query: %s', query)
         for field, values in query.items() if query else []:
             q.extend((field, value) for value in values)
         filters = [f for uri in uris or [] for f in self._filters(uri) if f]
